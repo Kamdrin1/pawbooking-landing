@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'PawBooking <onboarding@resend.dev>',
+        from: 'PawBooking <notifications@pawbooking.net>',
         to: 'KamdrinOverholt@gmail.com',
         subject: '🐾 New PawBooking Waitlist Signup!',
         html: `
