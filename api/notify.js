@@ -23,8 +23,8 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'PawBooking <onboarding@resend.dev>',
-        to: 'KamdrinOverholt@gmail.com',
+        from: 'onboarding@resend.dev',
+        to: ['kamdrinoverholt@gmail.com'],
         subject: '🐾 New PawBooking Waitlist Signup!',
         html: `
           <div style="font-family: -apple-system, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 32px; background: #FDFCF8;">
