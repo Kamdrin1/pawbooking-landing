@@ -4,16 +4,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = req.body;
-    const email = body?.record?.email;
-    const signedUpAt = new Date().toLocaleString('en-US', {
-      timeZone: 'America/Los_Angeles',
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    });
+    const payload = req.body;
+    const email = payload?.record?.email;
 
     if (!email) {
-      return res.status(400).json({ error: 'No email found in payload' });
+      return res.status(400).json({ error: 'No email in payload' });
     }
 
     const response = await fetch('https://api.resend.com/emails', {
@@ -23,43 +18,34 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
-        to: ['kamdrinoverholt@gmail.com'],
+        from: 'PawBooking <onboarding@resend.dev>',
+        to: 'KamdrinOverholt@gmail.com',
         subject: '🐾 New PawBooking Waitlist Signup!',
         html: `
-          <div style="font-family: -apple-system, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 32px; background: #FDFCF8;">
-            <div style="background: #2D6A4F; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🐾 New Waitlist Signup!</h1>
+          <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px;">
+            <h2 style="color:#2D6A4F;margin-bottom:8px;">New Waitlist Signup 🐾</h2>
+            <p style="color:#444;font-size:16px;">Someone just joined the PawBooking waitlist.</p>
+            <div style="background:white;border:1px solid #e0e0e0;border-radius:8px;padding:20px;margin:24px 0;">
+              <p style="margin:0;font-size:14px;color:#888;text-transform:uppercase;letter-spacing:1px;">Email</p>
+              <p style="margin:8px 0 0;font-size:18px;font-weight:700;color:#1a1a1a;">${email}</p>
             </div>
-            <p style="color: #44403C; font-size: 16px; line-height: 1.6;">
-              Someone just joined the PawBooking waitlist. Here are their details:
-            </p>
-            <div style="background: #D8F3DC; border: 1px solid #52B788; border-radius: 10px; padding: 20px 24px; margin: 24px 0;">
-              <p style="margin: 0 0 8px; font-size: 13px; color: #2D6A4F; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Email Address</p>
-              <p style="margin: 0; font-size: 20px; font-weight: 700; color: #1B4332;">${email}</p>
-            </div>
-            <p style="color: #78716C; font-size: 13px;">Signed up: ${signedUpAt} (Pacific Time)</p>
-            <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #E7E2D8;">
-              <p style="color: #78716C; font-size: 13px; margin: 0;">
-                View all signups in your 
-                <a href="https://supabase.com/dashboard/project/lszifwrtshljohauwnfq/editor" style="color: #2D6A4F; font-weight: 600;">Supabase dashboard</a>
-                · Reach out to this groomer personally for maximum conversion.
-              </p>
-            </div>
+            <p style="color:#888;font-size:13px;">Signed up: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })} PT</p>
+            <a href="https://supabase.com/dashboard/project/lszifwrtshljohauwnfq/editor" style="display:inline-block;margin-top:16px;background:#2D6A4F;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">View in Supabase →</a>
           </div>
         `
       })
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Resend error: ${errorText}`);
+      const error = await response.text();
+      console.error('Resend error:', error);
+      return res.status(500).json({ error: 'Failed to send email' });
     }
 
     return res.status(200).json({ ok: true });
 
-  } catch (error) {
-    console.error('Notification error:', error);
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('Handler error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
